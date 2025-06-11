@@ -1,0 +1,1793 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>巡影安全扫描平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --primary-dark: #00a8ff;
+            --secondary: #7df9ff;
+            --danger: #ff2d75;
+            --warning: #ff9e2d;
+            --success: #00ff9d;
+            --dark-bg: #0a0e17;
+            --dark-surface: #121a2a;
+            --dark-surface-light: #1a2438;
+            --dark-text: #e0f2ff;
+            --dark-text-secondary: #8ca0c7;
+            --border: #1f2b4d;
+            --border-light: #2a3a62;
+            --glow: 0 0 15px rgba(0, 240, 255, 0.5);
+            --glow-primary: 0 0 20px rgba(0, 240, 255, 0.7);
+            --glow-danger: 0 0 20px rgba(255, 45, 117, 0.5);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--dark-bg);
+            color: var(--dark-text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(0, 168, 255, 0.1) 0%, transparent 20%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+        
+        .cyber-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .cyber-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -3px;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: var(--glow);
+        }
+        
+        .cyber-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -3px;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: var(--glow);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .cyber-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+        
+        .corner-tl {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .corner-tr {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+        
+        .corner-bl {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+        
+        .corner-br {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            margin-bottom: 30px;
+            font-size: 2.8rem;
+            text-align: center;
+            text-shadow: 0 0 10px var(--primary);
+            position: relative;
+            padding-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            border-radius: 3px;
+        }
+        
+        .tab {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            position: relative;
+        }
+        
+        .tab::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab button {
+            padding: 14px 28px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-text-secondary);
+            position: relative;
+            white-space: nowrap;
+            border-radius: 6px 6px 0 0;
+            margin-right: 5px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        
+        .tab button:hover {
+            color: var(--primary);
+            background: rgba(0, 240, 255, 0.1);
+        }
+        
+        .tab button.active {
+            color: var(--primary);
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--primary);
+        }
+        
+        .tab button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+            animation: tabUnderline 0.3s ease-out;
+            box-shadow: var(--glow);
+        }
+        
+        @keyframes tabUnderline {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        
+        .tabcontent {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border-color: var(--primary);
+        }
+        
+        .section h3 {
+            margin-top: 0;
+            color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--primary);
+        }
+        
+        .row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 18px 0;
+            flex-wrap: wrap;
+        }
+        
+        label {
+            min-width: 120px;
+            font-weight: 500;
+            color: var(--dark-text);
+            font-size: 15px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        select {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            flex: 1;
+            background: var(--dark-surface-light);
+            color: var(--dark-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--glow);
+        }
+        
+        input[type="file"] {
+            padding: 8px 15px;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238ca0c7'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #0a0e17;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow);
+            margin-right: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow-primary);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        button:disabled::before {
+            display: none;
+        }
+        
+        .btn-stop {
+            background: linear-gradient(135deg, var(--danger), #d10047);
+            box-shadow: 0 0 15px rgba(255, 45, 117, 0.5);
+            color: white;
+        }
+        
+        .btn-stop:hover {
+            box-shadow: var(--glow-danger);
+        }
+        
+        .results {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .results::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        }
+        
+        .results::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .results::-webkit-scrollbar-track {
+            background: var(--dark-surface);
+        }
+        
+        .results::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .status-group {
+            position: relative;
+            margin-bottom: 25px;
+            background: var(--dark-surface-light);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-group::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        }
+        
+        .status-group.vuln {
+            border-left-color: var(--danger);
+            background: rgba(255, 45, 117, 0.05);
+        }
+        
+        .status-group.vuln::before {
+            background: linear-gradient(90deg, var(--danger), #d10047);
+        }
+        
+        .status-group.success {
+            border-left-color: var(--success);
+            background: rgba(0, 255, 157, 0.05);
+        }
+        
+        .status-group.success::before {
+            background: linear-gradient(90deg, var(--success), #00cc7d);
+        }
+        
+        .status-group.info {
+            border-left-color: var(--primary);
+        }
+        
+        .status-group.warning {
+            border-left-color: var(--warning);
+            background: rgba(255, 158, 45, 0.05);
+        }
+        
+        .status-group.warning::before {
+            background: linear-gradient(90deg, var(--warning), #ff8c00);
+        }
+        
+        .status-header {
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        
+        .result-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            word-break: break-word;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .result-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+        
+        .url-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        
+        .url-list a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-bottom: 1px dotted var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .url-list a:hover {
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+            text-shadow: 0 0 10px var(--secondary);
+        }
+        
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 240, 255, 0.2);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            box-shadow: var(--glow);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: var(--dark-text-secondary);
+            font-size: 13px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .result-content {
+            white-space: pre-line;
+            line-height: 1.8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .result-content a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--primary);
+        }
+        
+        small {
+            color: var(--dark-text-secondary);
+            font-size: 13px;
+            display: block;
+            margin-top: 5px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            position: relative;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            margin-right: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: var(--glow);
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 3px;
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+        
+        .checkbox-group label {
+            min-width: auto;
+            color: var(--dark-text);
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            background: var(--primary-dark);
+            color: var(--dark-text);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: var(--glow);
+        }
+        
+        .badge.success {
+            background: var(--success);
+            color: #000;
+        }
+        
+        .badge.warning {
+            background: var(--warning);
+            color: #000;
+        }
+        
+        .badge.danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            color: var(--dark-text-secondary);
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-surface-light);
+            color: var(--dark-text);
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark-surface-light) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .cyber-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(18, 26, 42, 0.8) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 26, 42, 0.8) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .cyber-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite alternate;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.8; }
+        }
+        
+        .terminal-effect {
+            position: relative;
+        }
+        
+        .terminal-effect::after {
+            content: '_';
+            animation: blink 1s infinite;
+            color: var(--primary);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+            
+            input[type="text"],
+            input[type="number"],
+            select {
+                width: 100%;
+            }
+            
+            .tab button {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+            
+            .section {
+                padding: 18px;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-grid"></div>
+    <div class="cyber-pulse"></div>
+    
+    <div class="container">
+        <div class="cyber-corner corner-tl"></div>
+        <div class="cyber-corner corner-tr"></div>
+        <div class="cyber-corner corner-bl"></div>
+        <div class="cyber-corner corner-br"></div>
+        
+        <h1 class="terminal-effect">巡影安全扫描平台</h1>
+        
+        <div class="cyber-line"></div>
+
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'fscan')">主机扫描</button>
+            <button class="tablinks active" onclick="openTab(event, 'weak_pass')">弱口令爆破</button>
+            <button class="tablinks" onclick="openTab(event, 'dir')">目录扫描</button>
+            <button class="tablinks" onclick="openTab(event, 'sql')">sql注入测试</button>
+            <button class="tablinks" onclick="openTab(event, 'log')">日志分析</button>
+        </div>
+
+        <!-- SQL注入扫描界面 -->
+        <div id="sql" class="tabcontent">
+            <div class="section">
+                <h3>基本配置</h3>
+                <div class="row">
+                    <label for="sqlFile">数据包路径:</label>
+                    <input type="file" name="requestFile" id="sqlFile">
+                    <span style="margin: 0 10px; color: var(--dark-text-secondary)">OR</span>
+                    <input type="text" name="url" placeholder="输入目标URL" id="sqlUrl">
+                </div>
+                <div class="row">
+                    <label for="riskLevel">风险级别:</label>
+                    <select name="risk" id="riskLevel">
+                        <option value="1">1 - 低风险</option>
+                        <option value="2">2 - 中风险</option>
+                        <option value="3" selected>3 - 高风险</option>
+                    </select>
+                    <label for="testLevel">测试级别:</label>
+                    <select name="level" id="testLevel">
+                        <option value="1">1 - 基础</option>
+                        <option value="2" selected>2 - 进阶</option>
+                        <option value="3">3 - 全面</option>
+                    </select>
+                    <label for="threads">线程数:</label>
+                    <input type="number" name="threads" id="threads" value="10" min="1" max="20">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>扫描模式 <span class="badge">ADVANCED</span></h3>
+                <div class="row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="enum_db" id="enumDB">
+                        <label for="enumDB">枚举数据库 (--dbs)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="enum_table" id="enumTable">
+                        <label for="enumTable">枚举数据表 (--tables)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="enum_column" id="enumColumn">
+                        <label for="enumColumn">枚举字段 (--columns)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="dump_data" id="dumpData">
+                        <label for="dumpData">数据脱取 (--dump)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>目标指定 <span class="tooltip">?<span class="tooltiptext">可指定特定数据库、表或字段进行针对性扫描</span></span></h3>
+                <div class="row">
+                    <input type="text" name="db" id="db" placeholder="指定数据库名">
+                    <input type="text" name="table" id="table" placeholder="指定数据表名">
+                    <input type="text" name="column" id="column" placeholder="指定字段名">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="flush" id="flush">
+                        <label for="flush">清除会话缓存</label>
+                    </div>
+                    <div style="flex:1">
+                        <input type="text" name="customArgs" id="customArgs" placeholder="自定义参数，用逗号分隔" style="width:100%">
+                        <small>示例: --data=id=1,--tamper=randomcase</small>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startSQLScan()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                INITIATE SCAN
+            </button>
+            <button class="btn-stop" onclick="stopScan('sql')" id="sqlStopBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+                ABORT SCAN
+            </button>
+            <div id="sqlResults" class="results"></div>
+        </div>
+
+        <!-- 目录扫描界面 -->
+        <div id="dir" class="tabcontent">
+            <div class="section">
+                <h3>目录扫描配置</h3>
+                <div class="row">
+                    <label for="dirUrl">目标URL:</label>
+                    <input type="text" name="url" id="dirUrl" placeholder="https://example.com" required>
+                </div>
+                <div class="row">
+                    <label for="dictionary">字典文件:</label>
+                    <input type="file" name="dictionary" id="dictionary" required>
+                    <small>支持.txt格式的字典文件</small>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>高级配置</h3>
+                <div class="row">
+                    <label for="exclude">排除目录:</label>
+                    <input type="text" name="exclude" id="exclude" placeholder="/admin,/test">
+                    <label for="timeout">超时时间(s):</label>
+                    <input type="number" name="timeout" id="timeout" value="3" min="1" max="10">
+                </div>
+            </div>
+
+            <button onclick="startDirScan()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                INITIATE SCAN
+            </button>
+            <button class="btn-stop" onclick="stopScan('dir')" id="dirStopBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+                ABORT SCAN
+            </button>
+            <div id="dirResults" class="results"></div>
+        </div>
+
+        <!-- 日志分析界面 -->
+        <div id="log" class="tabcontent">
+            <div class="section">
+                <h3>日志分析配置</h3>
+                <div class="row">
+                    <label for="logFile">日志文件:</label>
+                    <input type="file" name="logFile" id="logFile" required>
+                    <small>支持常见日志格式文件</small>
+                </div>
+            </div>
+
+            <button onclick="startLogAnalysis()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                INITIATE ANALYSIS
+            </button>
+            <button class="btn-stop" onclick="stopScan('log')" id="logStopBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+                ABORT ANALYSIS
+            </button>
+            <div id="logResults" class="results"></div>
+        </div>
+
+        <!-- 主机扫描界面 -->
+        <div id="fscan" class="tabcontent">
+            <div class="section">
+                <h3>主机扫描配置</h3>
+                <div class="row">
+                    <label for="fscan-target">目标:</label>
+                    <input type="text" name="target" id="fscan-target" placeholder="如192.168.1.1/24, 192.168.1.1-5">
+                </div>
+                <div class="row">
+                    <label for="fscan-exclude">排除目标:</label>
+                    <input type="text" name="exclude_host" id="fscan-exclude" placeholder="192.168.1.1">
+                </div>
+                <div class="row">
+                    <label for="fscan-host-file">目标文件:</label>
+                    <input type="file" name="host_file" id="fscan-host-file" accept=".txt" title="选择目标主机文件">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>端口配置</h3>
+                <div class="row">
+                    <label for="fscan-ports">端口范围:</label>
+                    <input type="text" name="ports" id="fscan-ports" placeholder="如22,80,443">
+                </div>
+                <div class="row">
+                    <label for="fscan-port-file">端口文件:</label>
+                    <input type="file" name="port_file" id="fscan-port-file" accept=".txt" title="选择端口文件">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>高级配置 <span class="badge">PRO</span></h3>
+                <div class="row">
+                    <label for="fscan-mode">模式:</label>
+                    <select name="mode" id="fscan-mode" title="选择扫描模式">
+                        <option value="all">All</option>
+                        <option value="web">Web</option>
+                        <option value="redis">Redis</option>
+                        <option value="ssh">SSH</option>
+                    </select>
+                    <label for="fscan-threads">线程数:</label>
+                    <input type="number" name="threads" id="fscan-threads" value="60" min="1" title="设置扫描线程数">
+                    <label for="fscan-timeout">超时时间(s):</label>
+                    <input type="number" name="timeout" id="fscan-timeout" value="3" min="1" title="设置超时时间">
+                </div>
+                <div class="row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="skip_ping" id="fscan-skip-ping" title="是否跳过存活检测">
+                        <label for="fscan-skip-ping">跳过存活检测</label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startFSCANScan()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                INITIATE SCAN
+            </button>
+            <button class="btn-stop" onclick="stopScan('fscan')" id="fscanStopBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+                ABORT SCAN
+            </button>
+            <div id="fscanResults" class="results"></div>
+        </div>
+
+        <!-- 弱口令爆破界面 -->
+        <div id="weak_pass" class="tabcontent" style="display:block;">
+            <div class="section">
+                <h3>目标配置</h3>
+                <div class="row">
+                    <label for="weakPassUrl">目标URL:</label>
+                    <input type="text" name="url" id="weakPassUrl" placeholder="http://example.com/login" required>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>字典配置</h3>
+                <div class="row">
+                    <label for="usernameFile">用户名字典:</label>
+                    <input type="file" name="username_file" id="usernameFile" accept=".txt" required>
+                    <small>必需，请上传用户名字典文件(.txt)</small>
+                </div>
+                <div class="row">
+                    <label for="passwordFile">密码字典:</label>
+                    <input type="file" name="password_file" id="passwordFile" accept=".txt" required>
+                    <small>必需，请上传密码字典文件(.txt)</small>
+                </div>
+            </div>
+
+            <button onclick="startWeakPassScan()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                INITIATE SCAN
+            </button>
+            <button class="btn-stop" onclick="stopScan('weak_pass')" id="weakPassStopBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+                ABORT SCAN
+            </button>
+            <div id="weakPassResults" class="results"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let currentScanType = null;
+
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let tab of tabcontent) tab.style.display = "none";
+
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let link of tablinks) link.className = link.className.replace(" active", "");
+
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            currentScanType = tabName;
+        }
+
+        // ================= 统一结果展示函数 =================
+        function createResultBox(title, items, type = 'info') {
+            return `
+            <div class="status-group ${type}">
+                <div class="status-header">${title}</div>
+                ${items.map(item => `<div class="result-item">${item}</div>`).join('')}
+            </div>`;
+        }
+
+        function displaySQLResults(results, isScanning = true) {
+            const container = document.getElementById('sqlResults');
+            let html = '';
+            
+            // 过滤掉SQLMap横幅
+            const filteredResults = results.filter(line => {
+                return !line.includes('sqlmap.org') && 
+                       !line.includes('legal disclaimer') &&
+                       !line.match(/___.*___/);
+            });
+            
+            // 分类结果
+            const categories = {
+                vulns: [],    // 漏洞信息
+                info: [],     // 普通信息
+                errors: []    // 错误信息
+            };
+            
+            // 对结果进行分类
+            filteredResults.forEach(line => {
+                if (line.includes('注入点') || line.includes('CRITICAL')) {
+                    categories.vulns.push(line);
+                } else if (line.includes('[-]') || line.includes('error')) {
+                    categories.errors.push(line);
+                } else {
+                    categories.info.push(line);
+                }
+            });
+
+            // 显示漏洞信息
+            if (categories.vulns.length > 0) {
+                html += `
+                    <div class="status-group vuln">
+                        <div class="status-header">
+                            发现漏洞
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🔴 ${categories.vulns.join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 显示普通信息
+            if (categories.info.length > 0) {
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">ℹ️ ${categories.info.join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 显示错误信息
+            if (categories.errors.length > 0) {
+                html += `
+                    <div class="status-group warning">
+                        <div class="status-header">
+                            错误信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">⚠️ ${categories.errors.join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 如果没有结果
+            if (!html) {
+                html = `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描结果
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">正在扫描中...</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function displayWeakPassResults(results, isScanning = true) {
+            const container = document.getElementById('weakPassResults');
+            let html = '';
+            
+            // 分类结果
+            const categories = {
+                success: [],  // 成功结果
+                progress: [], // 进度信息
+                info: [],     // 一般信息
+                errors: []    // 错误信息
+            };
+            
+            results.forEach(result => {
+                if (result.includes('发现有效凭据')) {
+                    categories.success.push(result);
+                } else if (result.includes('进度:')) {
+                    categories.progress = [result]; // 只保留最新的进度
+                } else if (result.includes('错误') || result.includes('失败')) {
+                    categories.errors.push(result);
+                } else {
+                    categories.info.push(result);
+                }
+            });
+            
+            // 显示成功结果
+            if (categories.success.length > 0) {
+                html += `
+                    <div class="status-group success">
+                        <div class="status-header">
+                            发现凭据
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🔴 ${categories.success.join('\n')}</div>
+                    </div>
+                `;
+            }
+            
+            // 显示进度
+            if (categories.progress.length > 0) {
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描进度
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🔄 ${categories.progress.join('\n')}</div>
+                    </div>
+                `;
+            }
+            
+            // 显示一般信息
+            if (categories.info.length > 0) {
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">ℹ️ ${categories.info.join('\n')}</div>
+                    </div>
+                `;
+            }
+            
+            // 显示错误信息
+            if (categories.errors.length > 0) {
+                html += `
+                    <div class="status-group warning">
+                        <div class="status-header">
+                            错误信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">⚠️ ${categories.errors.join('\n')}</div>
+                    </div>
+                `;
+            }
+            
+            // 如果没有任何结果
+            if (!html) {
+                html = `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描状态
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">正在初始化扫描...</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function displayDirResults(results, isScanning = true) {
+            const container = document.getElementById('dirResults');
+            let html = '';
+            
+            // 显示200状态码结果
+            if (results['200']) {
+                html += `
+                    <div class="status-group success">
+                        <div class="status-header">
+                            状态码 200 (共${results['200'].length}条)
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🟢 ${results['200'].map(url => 
+                            `<a href="${url}" target="_blank">${url}</a>`).join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 显示301状态码结果
+            if (results['301']) {
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            状态码 301 (共${results['301'].length}条)
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🔵 ${results['301'].map(url => 
+                            `<a href="${url}" target="_blank">${url}</a>`).join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 显示其他状态码结果
+            Object.entries(results).forEach(([status, urls]) => {
+                if (!['200', '301', 'errors'].includes(status)) {
+                    html += `
+                        <div class="status-group info">
+                            <div class="status-header">
+                                状态码 ${status} (共${urls.length}条)
+                                ${isScanning ? createLoadingSpinner() : ''}
+                            </div>
+                            <div class="result-content">ℹ️ ${urls.map(url => 
+                                `<a href="${url}" target="_blank">${url}</a>`).join('\n')}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            // 显示错误信息
+            if (results.errors && results.errors.length > 0) {
+                html += `
+                    <div class="status-group warning">
+                        <div class="status-header">
+                            错误信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">⚠️ ${results.errors.join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 如果没有任何结果
+            if (!html) {
+                html = `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描状态
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">正在扫描中...</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function displayLogResults(results, isScanning = true) {
+            const container = document.getElementById('logResults');
+            let html = '';
+
+            // 显示分析报告
+            if (results.analysis) {
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            分析报告
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">📊 ${results.analysis.split('\n\n').map(line => 
+                            line.replace(/\n/g, '<br>')).join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 显示相关日志条目
+            if (results.extracted_lines?.length > 0) {
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            相关日志条目
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">📝 ${results.extracted_lines.join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 显示JNDI攻击载荷
+            if (results.jndi_payloads?.length > 0) {
+                html += `
+                    <div class="status-group vuln">
+                        <div class="status-header">
+                            JNDI攻击载荷
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">⚠️ ${results.jndi_payloads.join('\n')}</div>
+                    </div>
+                `;
+            }
+
+            // 如果没有任何结果
+            if (!html) {
+                html = `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            分析状态
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">正在分析中...</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function createLoadingSpinner() {
+            return `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">扫描中...</div>
+                </div>
+            `;
+        }
+
+        function displayFscanResults(results, isScanning = true) {
+            const container = document.getElementById('fscanResults');
+            let html = '';
+            
+            // 分类结果
+            const categories = {
+                vulns: [],    // 漏洞信息
+                ports: [],    // 端口信息
+                services: [], // 服务信息
+                info: [],     // 普通信息
+                errors: []    // 错误信息
+            };
+
+            // 对结果进行分类
+            results.forEach(line => {
+                if (line.includes('[+]')) {
+                    if (line.includes('vuln')) {
+                        categories.vulns.push(line);
+                    } else if (line.includes('port')) {
+                        categories.ports.push(line);
+                    } else if (line.includes('service')) {
+                        categories.services.push(line);
+                    } else {
+                        categories.vulns.push(line);
+                    }
+                } else if (line.includes('[*]')) {
+                    categories.info.push(line);
+                } else if (line.includes('[-]') || line.includes('error')) {
+                    categories.errors.push(line);
+                }
+            });
+
+            // 显示漏洞信息
+            if (categories.vulns.length > 0) {
+                const vulnText = categories.vulns
+                    .map(vuln => vuln.replace('[+] ', ''))
+                    .join('\n');
+                html += `
+                    <div class="status-group vuln">
+                        <div class="status-header">
+                            发现漏洞
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🔴 ${vulnText}</div>
+                    </div>
+                `;
+            }
+
+            // 显示端口信息
+            if (categories.ports.length > 0) {
+                const portText = categories.ports
+                    .map(port => port.replace('[+] ', ''))
+                    .join('\n');
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            开放端口
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🔵 ${portText}</div>
+                    </div>
+                `;
+            }
+
+            // 显示服务信息
+            if (categories.services.length > 0) {
+                const serviceText = categories.services
+                    .map(service => service.replace('[+] ', ''))
+                    .join('\n');
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            服务信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">🟢 ${serviceText}</div>
+                    </div>
+                `;
+            }
+
+            // 显示普通信息
+            if (categories.info.length > 0) {
+                const infoText = categories.info
+                    .map(info => info.replace('[*] ', ''))
+                    .join('\n');
+                html += `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">ℹ️ ${infoText}</div>
+                    </div>
+                `;
+            }
+
+            // 显示错误信息
+            if (categories.errors.length > 0) {
+                const errorText = categories.errors
+                    .map(error => error.replace('[-] ', ''))
+                    .join('\n');
+                html += `
+                    <div class="status-group warning">
+                        <div class="status-header">
+                            错误信息
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">⚠️ ${errorText}</div>
+                    </div>
+                `;
+            }
+
+            // 如果没有结果
+            if (!html) {
+                html = `
+                    <div class="status-group info">
+                        <div class="status-header">
+                            扫描结果
+                            ${isScanning ? createLoadingSpinner() : ''}
+                        </div>
+                        <div class="result-content">正在扫描中...</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ================= 扫描控制函数 =================
+        async function startSQLScan() {
+            const formData = new FormData();
+            const requestFile = document.getElementById('sqlFile').files[0];
+            if (requestFile) formData.append('requestFile', requestFile);
+
+            formData.append('url', document.getElementById('sqlUrl').value.trim());
+            formData.append('risk', document.getElementById('riskLevel').value);
+            formData.append('level', document.getElementById('testLevel').value);
+            formData.append('threads', document.getElementById('threads').value);
+            formData.append('enum_db', document.getElementById('enumDB').checked);
+            formData.append('enum_table', document.getElementById('enumTable').checked);
+            formData.append('enum_column', document.getElementById('enumColumn').checked);
+            formData.append('dump_data', document.getElementById('dumpData').checked);
+            formData.append('db', document.getElementById('db').value);
+            formData.append('table', document.getElementById('table').value);
+            formData.append('column', document.getElementById('column').value);
+            formData.append('flush', document.getElementById('flush').checked);
+            formData.append('customArgs', document.getElementById('customArgs').value);
+
+            try {
+                const response = await fetch('/start-sql-scan', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                currentJobId = data.job_id;
+                document.getElementById('sqlStopBtn').disabled = false;
+                pollStatus('sql');
+            } catch (error) {
+                alert('SQL扫描启动失败: ' + error.message);
+            }
+        }
+
+        async function startDirScan() {
+            const formData = new FormData();
+            const dictFile = document.getElementById('dictionary').files[0];
+            formData.append('dictionary', dictFile);
+            formData.append('url', document.getElementById('dirUrl').value.trim());
+            formData.append('exclude', document.getElementById('exclude').value.trim());
+            formData.append('timeout', document.getElementById('timeout').value);
+
+            try {
+                const response = await fetch('/start-dir-scan', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                currentJobId = data.job_id;
+                document.getElementById('dirStopBtn').disabled = false;
+                pollStatus('dir');
+            } catch (error) {
+                alert('目录扫描启动失败: ' + error.message);
+            }
+        }
+
+        async function startLogAnalysis() {
+            const formData = new FormData();
+            const logFile = document.getElementById('logFile').files[0];
+            formData.append('logFile', logFile);
+
+            try {
+                const response = await fetch('/start-log-analysis', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                currentJobId = data.job_id;
+                document.getElementById('logStopBtn').disabled = false;
+                setTimeout(() => pollStatus('log'), 1500);
+            } catch (error) {
+                alert('日志分析启动失败: ' + error.message);
+            }
+        }
+
+        async function startFSCANScan() {
+            const formData = new FormData();
+            const fscanForm = document.querySelector('#fscan');
+
+            formData.append('target', fscanForm.querySelector('input[name="target"]').value.trim());
+            formData.append('exclude_host', fscanForm.querySelector('input[name="exclude_host"]').value.trim());
+            const hostFile = fscanForm.querySelector('input[name="host_file"]').files[0];
+            if (hostFile) formData.append('host_file', hostFile);
+
+            formData.append('ports', fscanForm.querySelector('input[name="ports"]').value.trim());
+            const portFile = fscanForm.querySelector('input[name="port_file"]').files[0];
+            if (portFile) formData.append('port_file', portFile);
+
+            formData.append('mode', fscanForm.querySelector('select[name="mode"]').value);
+            formData.append('threads', fscanForm.querySelector('input[name="threads"]').value);
+            formData.append('timeout', fscanForm.querySelector('input[name="timeout"]').value);
+            formData.append('skip_ping', fscanForm.querySelector('input[name="skip_ping"]').checked);
+
+            try {
+                const response = await fetch('/start-fscan-scan', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                currentJobId = data.job_id;
+                document.getElementById('fscanStopBtn').disabled = false;
+                pollStatus('fscan');
+            } catch (error) {
+                alert('FSCAN扫描启动失败: ' + error.message);
+            }
+        }
+
+        async function startWeakPassScan() {
+            const url = document.getElementById('weakPassUrl').value.trim();
+            const usernameFile = document.getElementById('usernameFile').files[0];
+            const passwordFile = document.getElementById('passwordFile').files[0];
+            const stopBtn = document.getElementById('weakPassStopBtn');
+            const resultsDiv = document.getElementById('weakPassResults');
+            
+            // 验证输入
+            if (!url) {
+                alert('请输入目标URL');
+                return;
+            }
+            if (!usernameFile) {
+                alert('请选择用户名字典文件');
+                return;
+            }
+            if (!passwordFile) {
+                alert('请选择密码字典文件');
+                return;
+            }
+            
+            // 显示初始状态
+            if (resultsDiv) {
+                resultsDiv.innerHTML = createResultBox('扫描状态', ['正在启动扫描...']);
+            }
+            
+            const formData = new FormData();
+            formData.append('url', url);
+            formData.append('username_file', usernameFile);
+            formData.append('password_file', passwordFile);
+            
+            try {
+                const response = await fetch('/start-weak-pass-scan', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '启动扫描失败');
+                }
+                
+                currentJobId = data.job_id;
+                if (stopBtn) {
+                    stopBtn.disabled = false;
+                }
+                pollStatus('weak_pass');
+            } catch (error) {
+                if (resultsDiv) {
+                    resultsDiv.innerHTML = createResultBox('错误信息', [`⚠️ ${error.message}`], 'warning');
+                }
+                if (stopBtn) {
+                    stopBtn.disabled = true;
+                }
+                console.error('弱口令扫描启动失败:', error);
+            }
+        }
+
+        async function pollStatus(type) {
+            if (!currentJobId) return;
+
+            try {
+                const response = await fetch(`/scan-status/${currentJobId}`);
+                const data = await response.json();
+                const isScanning = data.status === 'scanning';
+
+                if (isScanning) {
+                    if (data.type === 'sql') {
+                        displaySQLResults(data.results, true);
+                    } else if (data.type === 'dir') {
+                        displayDirResults(data.results, true);
+                    } else if (data.type === 'log') {
+                        displayLogResults(data.results, true);
+                    } else if (data.type === 'fscan') {
+                        displayFscanResults(data.results, true);
+                    } else if (data.type === 'weak_pass') {
+                        displayWeakPassResults(data.results, true);
+                    }
+                    setTimeout(() => pollStatus(type), 1000);
+                } else {
+                    if (data.type === 'sql') {
+                        displaySQLResults(data.results, false);
+                    } else if (data.type === 'dir') {
+                        displayDirResults(data.results, false);
+                    } else if (data.type === 'log') {
+                        displayLogResults(data.results, false);
+                    } else if (data.type === 'fscan') {
+                        displayFscanResults(data.results, false);
+                    } else if (data.type === 'weak_pass') {
+                        displayWeakPassResults(data.results, false);
+                    }
+                    const stopBtn = document.getElementById(`${type}StopBtn`);
+                    if (stopBtn) {
+                        stopBtn.disabled = true;
+                    }
+                }
+            } catch (error) {
+                alert('状态获取失败: ' + error.message);
+            }
+        }
+
+        async function stopScan(type) {
+            if (!currentJobId) {
+                alert('没有正在运行的任务');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/stop-scan/${currentJobId}`);
+                const result = await response.json();
+
+                if (!response.ok) throw new Error(result.error || '停止失败');
+
+                document.getElementById(`${type}StopBtn`).disabled = true;
+                alert(result.status || '已停止');
+                setTimeout(() => pollStatus(type), 500);
+            } catch (error) {
+                alert(`停止失败: ${error.message}`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认显示弱口令爆破标签页
+            document.querySelector('.tab button[onclick*="weak_pass"]').click();
+            
+            // 添加终端闪烁效果
+            const title = document.querySelector('h1');
+            setInterval(() => {
+                title.classList.toggle('terminal-effect');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

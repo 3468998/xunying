@@ -1,0 +1,140 @@
+function displaySQLResults(results, isScanning = true) {
+    const container = document.getElementById('sqlResults');
+    let html = '';
+    
+    // 分类结果
+    const categories = {
+        vulns: [],      // 漏洞信息
+        databases: [],  // 数据库信息
+        tables: [],     // 数据表信息
+        columns: [],    // 列信息
+        data: [],       // 数据内容
+        info: [],       // 普通信息
+        errors: []      // 错误信息
+    };
+    
+    // 对结果进行分类
+    results.forEach(line => {
+        if (line.includes('注入点') || line.includes('CRITICAL')) {
+            categories.vulns.push(line);
+        } else if (line.includes('available databases') || line.includes('Database:')) {
+            categories.databases.push(line);
+        } else if (line.includes('tables:') || line.includes('Table:')) {
+            categories.tables.push(line);
+        } else if (line.includes('columns:') || line.includes('Column:')) {
+            categories.columns.push(line);
+        } else if (line.includes('entries') || line.includes('rows')) {
+            categories.data.push(line);
+        } else if (line.includes('[-]') || line.includes('error')) {
+            categories.errors.push(line);
+        } else {
+            categories.info.push(line);
+        }
+    });
+
+    // 显示漏洞信息
+    if (categories.vulns.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    发现漏洞
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">🔴 ${categories.vulns.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 显示数据库信息
+    if (categories.databases.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    数据库信息
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">📁 ${categories.databases.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 显示数据表信息
+    if (categories.tables.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    数据表信息
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">📋 ${categories.tables.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 显示列信息
+    if (categories.columns.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    字段信息
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">📊 ${categories.columns.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 显示数据内容
+    if (categories.data.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    数据内容
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">📝 ${categories.data.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 显示普通信息
+    if (categories.info.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    扫描信息
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">ℹ️ ${categories.info.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 显示错误信息
+    if (categories.errors.length > 0) {
+        html += `
+            <div class="status-group">
+                <div class="status-header">
+                    错误信息
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">⚠️ ${categories.errors.join('\n')}</div>
+            </div>
+        `;
+    }
+
+    // 如果没有结果
+    if (!html) {
+        html = `
+            <div class="status-group">
+                <div class="status-header">
+                    扫描结果
+                    ${isScanning ? createLoadingSpinner() : ''}
+                </div>
+                <div class="result-content">正在扫描中...</div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+} 
